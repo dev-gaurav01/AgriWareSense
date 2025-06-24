@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Warehouse Monitoring</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        /* Your existing CSS remains unchanged */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: green;
+        }
+
+        .logo i {
+            margin-right: 8px;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links li a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: black;
+            font-weight: 500;
+        }
+
+        .nav-links li a i {
+            margin-right: 5px;
+        }
+
+        .nav-links li a:hover, .nav-links li a.active {
+            color: green;
+        }
+
+        .mobile-only {
+            display: none;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: red;
+            color: white;
+            font-size: 10px;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .user-menu {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 30px;
+            right: 0;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            width: 150px;
+            z-index: 1000;
+        }
+
+        .user-dropdown a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #333;
+            padding: 10px;
+            transition: background-color 0.3s;
+        }
+
+        .user-dropdown a i {
+            margin-right: 8px;
+        }
+
+        .user-dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-dropdown.active {
+            display: block;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-title {
+            font-size: 24px;
+            color: green;
+        }
+
+        .timestamp {
+            color: #666;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timestamp .status-icon {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            display: inline-block;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card.large {
+            grid-column: span 3;
+        }
+
+        .dashboard-card.medium {
+            grid-column: span 2;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: green;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .status-indicator.good {
+            color: #4CAF50;
+        }
+
+        .status-indicator.moderate {
+            color: #FF9800;
+        }
+
+        .status-indicator.poor {
+            color: #F44336;
+        }
+
+        .status-indicator.low {
+            color: #2196F3;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+        }
+
+        .weather-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .weather-stats .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .weather-stats .stat-value {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .actuator-status {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .actuator-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 992px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-card.large {
+                grid-column: span 2;
+            }
+            
+            .dashboard-card.medium {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-card.large, 
+            .dashboard-card.medium {
+                grid-column: span 1;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">AgriWareSense</div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="alerts.html">Alerts</a></li>
+            <li><a href="help.html">Help/Support</a></li>
+            <li><a href="login.html">Login</a></li>
+        </ul>
+        <div class="icons">
+            <span>🔔</span>
+            <span id="logoutBtn" style="cursor:pointer;">👤 Logout</span>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Warehouse Monitoring Dashboard</h1>
+            <div class="timestamp">
+                <span class="status-icon"></span>
+                Last Updated: <span id="last-updated">Connecting...</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Temperature Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Temperature</h2>
+                    <span>🌡️</span>
+                </div>
+                <div class="card-value" id="temperature-value">--</div>
+                <div class="card-description">Current warehouse temperature</div>
+                <div class="status-indicator good" id="temperature-status">Optimal range</div>
+            </div>
+
+            <!-- Humidity Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Humidity</h2>
+                    <span>💧</span>
+                </div>
+                <div class="card-value" id="humidity-value">--</div>
+                <div class="card-description">Current air moisture level</div>
+                <div class="status-indicator good" id="humidity-status">Optimal range</div>
+            </div>
+
+            <!-- Weather Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Weather</h2>
+                    <span>🌤️</span>
+                </div>
+                <div class="card-value" id="weather-temp">--</div>
+                <div class="card-description" id="weather-desc">Fetching weather data...</div>
+                <div class="status-indicator" id="weather-status">--</div>
+                <div class="weather-stats">
+                    <div class="stat-item">
+                        <span>💧 Humidity</span>
+                        <span class="stat-value" id="weather-humidity">--</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>🌬️ Wind</span>
+                        <span class="stat-value" id="weather-wind">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Air Quality Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Air Quality</h2>
+                    <span>🌬️</span>
+                </div>
+                <div class="card-value" id="air-quality-value">--</div>
+                <div class="card-description">Air quality index (PPM)</div>
+                <div class="status-indicator good" id="air-quality-status">Good air quality</div>
+            </div>
+
+            <!-- Light Intensity Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Light Intensity</h2>
+                    <span>💡</span>
+                </div>
+                <div class="card-value" id="light-intensity-value">--</div>
+                <div class="card-description">Current light level in warehouse</div>
+                <div class="status-indicator good" id="light-status">Optimal lighting</div>
+            </div>
+
+            <!-- Motion Status Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">Motion Detection</h2>
+                    <span>👁️</span>
+                </div>
+                <div class="card-value" id="motion-value">--</div>
+                <div class="card-description">Motion sensor status</div>
+                <div class="status-indicator" id="motion-status">No data</div>
+            </div>
+
+            <!-- Environmental Controls Card -->
+            <div class="dashboard-card medium">
+                <div class="card-header">
+                    <h2 class="card-title">Environmental Controls</h2>
+                    <span>⚙️</span>
+                </div>
+                <div class="card-value">Active</div>
+                <div class="card-description">Control systems for warehouse environment</div>
+                <div class="status-indicator good">All systems operational</div>
+                <div class="actuator-status">
+                    <div class="actuator-item">
+                        <span>🌀 Fan</span>
+                        <span class="status-indicator good">ON</span>
+                    </div>
+                    <div class="actuator-item">
+                        <span>💧 Humidifier</span>
+                        <span class="status-indicator moderate">OFF</span>
+                    </div>
+                    <div class="actuator-item">
+                        <span>🔥 Heater</span>
+                        <span class="status-indicator poor">OFF</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status Card -->
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <h2 class="card-title">System Status</h2>
+                    <span>📊</span>
+                </div>
+                <div class="card-value">Online</div>
+                <div class="card-description">Warehouse monitoring system status</div>
+                <div class="status-indicator good">All sensors active</div>
+            </div>
+
+            <!-- Temperature Chart Card -->
+            <div class="dashboard-card large">
+                <div class="card-header">
+                    <h2 class="card-title">Temperature & Humidity History</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="tempHumidityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Air Quality & Light Chart Card -->
+            <div class="dashboard-card large">
+                <div class="card-header">
+                    <h2 class="card-title">Air Quality & Light Intensity History</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="airLightChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data history for charts
+        const dataHistory = {
+            timestamps: Array(10).fill(''),
+            temperature: Array(10).fill(null),
+            humidity: Array(10).fill(null),
+            airQuality: Array(10).fill(null),
+            lightIntensity: Array(10).fill(null)
+        };
+
+        // Connect to the WebSocket server
+        const ws = new WebSocket('ws://192.168.43.141:4000');
+        let connectionStatus = document.querySelector('.status-icon');
+        
+        // Set up charts
+        const tempHumidityCtx = document.getElementById('tempHumidityChart').getContext('2d');
+        const tempHumidityChart = new Chart(tempHumidityCtx, {
+            type: 'line',
+            data: {
+                labels: dataHistory.timestamps,
+                datasets: [
+                    {
+                        label: 'Temperature (°C)',
+                        data: dataHistory.temperature,
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        tension: 0.3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Humidity (%)',
+                        data: dataHistory.humidity,
+                        borderColor: 'rgb(54, 162, 235)',
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Temperature (°C)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Humidity (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+
+        const airLightCtx = document.getElementById('airLightChart').getContext('2d');
+        const airLightChart = new Chart(airLightCtx, {
+            type: 'line',
+            data: {
+                labels: dataHistory.timestamps,
+                datasets: [
+                    {
+                        label: 'Air Quality (PPM)',
+                        data: dataHistory.airQuality,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.3,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Light Intensity (%)',
+                        data: dataHistory.lightIntensity,
+                        borderColor: 'rgb(255, 205, 86)',
+                        backgroundColor: 'rgba(255, 205, 86, 0.2)',
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Air Quality (PPM)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Light Intensity (%)'
+                        },
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                    }
+                }
+            }
+        });
+
+        // Handle WebSocket connection open
+        ws.onopen = () => {
+            console.log('WebSocket connection established');
+            connectionStatus.style.backgroundColor = '#4CAF50';
+            document.getElementById('last-updated').textContent = 'Connected, awaiting data...';
+        };
+
+        // Handle WebSocket connection error
+        ws.onerror = () => {
+            connectionStatus.style.backgroundColor = '#F44336';
+            document.getElementById('last-updated').textContent = 'Connection error';
+        };
+
+        // Handle incoming messages from the server
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('Received data:', data);
+            
+            // Update the cards
+            updateDashboardCards(data);
+            
+            // Update time 
+            const lastUpdatedSpan = document.getElementById('last-updated');
+            lastUpdatedSpan.textContent = new Date(data.timestamp).toLocaleTimeString();
+            
+            // Update chart data
+            updateCharts(data);
+        };
+
+        // Handle WebSocket connection close
+        ws.onclose = () => {
+            console.log('WebSocket connection closed');
+            connectionStatus.style.backgroundColor = '#9E9E9E';
+            document.getElementById('last-updated').textContent = 'Disconnected';
+        };
+
+        // Update dashboard cards with new data
+        function updateDashboardCards(data) {
+            // Temperature
+            document.getElementById('temperature-value').textContent = `${data.temperature} °C`;
+            const tempStatus = document.getElementById('temperature-status');
+            if (data.temperature < 15) {
+                tempStatus.textContent = 'Too cold';
+                tempStatus.className = 'status-indicator poor';
+            } else if (data.temperature > 30) {
+                tempStatus.textContent = 'Too hot';
+                tempStatus.className = 'status-indicator poor';
+            } else if (data.temperature > 25) {
+                tempStatus.textContent = 'Warm';
+                tempStatus.className = 'status-indicator moderate';
+            } else {
+                tempStatus.textContent = 'Optimal range';
+                tempStatus.className = 'status-indicator good';
+            }
+
+            // Humidity
+            document.getElementById('humidity-value').textContent = `${data.humidity} %`;
+            const humidityStatus = document.getElementById('humidity-status');
+            if (data.humidity < 30) {
+                humidityStatus.textContent = 'Too dry';
+                humidityStatus.className = 'status-indicator poor';
+            } else if (data.humidity > 70) {
+                humidityStatus.textContent = 'Too humid';
+                humidityStatus.className = 'status-indicator poor';
+            } else if (data.humidity > 60) {
+                humidityStatus.textContent = 'Slightly humid';
+                humidityStatus.className = 'status-indicator moderate';
+            } else {
+                humidityStatus.textContent = 'Optimal range';
+                humidityStatus.className = 'status-indicator good';
+            }
+
+            // Air Quality
+            document.getElementById('air-quality-value').textContent = data.airQuality;
+            const airQualityStatus = document.getElementById('air-quality-status');
+            const airQualityDesc = getAirQualityStatus(data.airQuality);
+            airQualityStatus.textContent = airQualityDesc;
+            
+            if (airQualityDesc === "Good") {
+                airQualityStatus.className = 'status-indicator good';
+            } else if (airQualityDesc === "Moderate") {
+                airQualityStatus.className = 'status-indicator moderate';
+            } else {
+                airQualityStatus.className = 'status-indicator poor';
+            }
+
+            // Light Intensity
+            document.getElementById('light-intensity-value').textContent = `${data.lightIntensity} %`;
+            const lightStatus = document.getElementById('light-status');
+            const lightDesc = getLightStatus(data.lightIntensity);
+            lightStatus.textContent = lightDesc;
+            
+            if (lightDesc === "Good") {
+                lightStatus.className = 'status-indicator good';
+            } else if (lightDesc === "Low Light") {
+                lightStatus.className = 'status-indicator low';
+            } else if (lightDesc === "Moderate") {
+                lightStatus.className = 'status-indicator moderate';
+            } else {
+                lightStatus.className = 'status-indicator poor';
+            }
+
+            // Motion
+            const motionElement = document.getElementById('motion-value');
+            const motionStatus = document.getElementById('motion-status');
+            
+            if (data.pirStatus) {
+                motionElement.textContent = 'DETECTED';
+                motionStatus.textContent = 'Movement in warehouse';
+                motionStatus.className = 'status-indicator moderate';
+            } else {
+                motionElement.textContent = 'NONE';
+                motionStatus.textContent = 'No movement detected';
+                motionStatus.className = 'status-indicator good';
+            }
+        }
+
+        // Update chart data with new values
+        function updateCharts(data) {
+            dataHistory.timestamps.shift();
+            dataHistory.temperature.shift();
+            dataHistory.humidity.shift();
+            dataHistory.airQuality.shift();
+            dataHistory.lightIntensity.shift();
+            
+            const timeString = new Date(data.timestamp).toLocaleTimeString();
+            dataHistory.timestamps.push(timeString);
+            dataHistory.temperature.push(data.temperature);
+            dataHistory.humidity.push(data.humidity);
+            dataHistory.airQuality.push(data.airQuality);
+            dataHistory.lightIntensity.push(data.lightIntensity);
+            
+            tempHumidityChart.update();
+            airLightChart.update();
+        }
+
+        // Helper function to determine air quality status
+        function getAirQualityStatus(airQuality) {
+            if (airQuality < 1000) return "Good";
+            else if (airQuality < 2000) return "Moderate";
+            else if (airQuality < 3000) return "Poor";
+            else return "Hazardous";
+        }
+
+        // Helper function to determine light status
+        function getLightStatus(lightIntensity) {
+            if (lightIntensity > 80) return "Too Bright";
+            else if (lightIntensity > 50) return "Moderate";
+            else if (lightIntensity > 20) return "Good";
+            else return "Low Light";
+        }
+
+async function fetchWeather() {
+            try {
+                const response = await fetch('/weather');
+                const data = await response.json();
+
+                // Update the weather card with the fetched data
+                document.getElementById('weather-temp').textContent = `${data.temp}°C`;
+                document.getElementById('weather-desc').textContent = data.description;
+                document.getElementById('weather-humidity').textContent = `${data.humidity}%`;
+                document.getElementById('weather-wind').textContent = `${data.wind} m/s`;
+                
+                // Set weather status based on conditions
+                const weatherStatus = document.getElementById('weather-status');
+                if (data.description.includes('clear')) {
+                    weatherStatus.textContent = 'Clear Sky';
+                    weatherStatus.className = 'status-indicator good';
+                } else if (data.description.includes('cloud')) {
+                    weatherStatus.textContent = 'Cloudy';
+                    weatherStatus.className = 'status-indicator moderate';
+                } else if (data.description.includes('rain')) {
+                    weatherStatus.textContent = 'Rainy';
+                    weatherStatus.className = 'status-indicator poor';
+                } else {
+                    weatherStatus.textContent = data.description;
+                    weatherStatus.className = 'status-indicator moderate';
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                document.getElementById('weather-desc').textContent = 'Failed to fetch weather data. Please try again later.';
+            }
+        }
+
+        // Fetch weather data on page load
+        fetchWeather();
+
+        // Optionally, refresh weather data every 30 minutes
+        setInterval(fetchWeather, 1800000);
+    </script>
+</body>
+</html>

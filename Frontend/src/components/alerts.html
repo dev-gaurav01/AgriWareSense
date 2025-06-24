@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Alerts - Smart Warehouse Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fas fa-warehouse"></i>
+      <span>AgriWareSense</span>
+    </div>
+    <div class="menu-toggle" id="mobileMenuToggle">
+      <i class="fas fa-bars"></i>
+    </div>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="#" class="active"><i class="fas fa-bell"></i> Alerts</a></li>
+      <li><a href="help.html"><i class="fas fa-question-circle"></i> Help/Support</a></li>
+      <li><a href="login.html" class="mobile-only"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+    </ul>
+    <div class="icons">
+      <div class="notification-bell">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge" id="alertCount">0</span>
+      </div>
+      <div class="user-menu">
+        <span id="userMenuToggle"><i class="fas fa-user-circle"></i></span>
+        <div class="user-dropdown">
+          <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+          <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+          <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Alerts Section -->
+  <section class="alerts-page">
+    <div class="section-header">
+      <h2><i class="fas fa-bell"></i> Alerts</h2>
+      <div class="section-actions">
+        <div class="search-box">
+          <input type="text" placeholder="Search alerts..." id="alertSearch" onkeyup="filterAlerts()">
+          <i class="fas fa-search"></i>
+        </div>
+        <select id="alertFilter" class="sort-dropdown" onchange="filterAlerts()">
+          <option value="all">All Alerts</option>
+          <option value="active">Active</option>
+          <option value="resolved">Resolved</option>
+          <option value="critical">Critical</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="alerts-list" id="alertsList">
+      <!-- Alerts will be dynamically added here -->
+    </div>
+
+    <div class="view-all-container">
+      <button class="btn secondary-btn" id="loadMoreAlerts">
+        Load More <i class="fas fa-chevron-down"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>Smart Warehouse</h3>
+        <p>Technology-driven storage solutions for a greener tomorrow.</p>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="#">Alerts</a></li>
+          <li><a href="help.html">Help/Support</a></li>
+        </ul>
+      </div>
+      <div class="footer-section">
+        <h3>Contact Us</h3>
+        <p><i class="fas fa-map-marker-alt"></i> 123 Warehouse Road, Tech City</p>
+        <p><i class="fas fa-phone"></i> +91 9876543210</p>
+        <p><i class="fas fa-envelope"></i> info@smartwarehouse.com</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Smart Warehouse. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- JavaScript -->
+  <script>
+    const ws = new WebSocket('ws://192.168.43.141:4000'); // Replace with your server IP and port
+    const alertsList = document.getElementById('alertsList');
+    const alertCount = document.getElementById('alertCount');
+    let alerts = []; // Store alerts locally for filtering
+
+    // Thresholds for alerts (adjust as needed)
+    const TEMP_THRESHOLD = 30; // Celsius
+    const HUMIDITY_THRESHOLD = 65; // Percentage
+    const LIGHT_THRESHOLD = 92; // Lux (example: too bright, adjust as needed)
+
+    // WebSocket connection opened
+    ws.onopen = () => {
+      console.log('Connected to WebSocket server');
+    };
+
+    // Handle incoming WebSocket messages
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log('Received data:', data); // Debug: Check incoming data
+      checkForAlerts(data);
+    };
+
+    // Check sensor data and generate alerts
+    function checkForAlerts(data) {
+      const timestamp = new Date(data.timestamp).toLocaleString();
+
+      // Temperature Alert
+      if (data.temperature > TEMP_THRESHOLD) {
+        const alert = {
+          message: `Temperature exceeded threshold: ${data.temperature}°C`,
+          type: 'critical',
+          time: timestamp,
+          status: 'active',
+        };
+        alerts.unshift(alert);
+      }
+
+      // Humidity Alert
+      if (data.humidity > HUMIDITY_THRESHOLD) {
+        const alert = {
+          message: `High humidity detected: ${data.humidity}%`,
+          type: 'warning',
+          time: timestamp,
+          status: 'active',
+        };
+        alerts.unshift(alert);
+      }
+
+      // Light Intensity Alert
+      if (data.lightIntensity > LIGHT_THRESHOLD) {
+        const alert = {
+          message: `Light intensity too high: ${data.lightIntensity} lux`,
+          type: 'warning',
+          time: timestamp,
+          status: 'active',
+        };
+        alerts.unshift(alert);
+      }
+
+      // Render alerts if any were added
+      if (alerts.length > 0) {
+        renderAlerts();
+        updateAlertCount();
+      }
+    }
+
+    // Render alerts to the DOM
+    function renderAlerts() {
+      const filter = document.getElementById('alertFilter').value;
+      const search = document.getElementById('alertSearch').value.toLowerCase();
+
+      alertsList.innerHTML = '';
+      const filteredAlerts = alerts.filter(alert => {
+        const matchesFilter = filter === 'all' || alert.status === filter || (filter === 'critical' && alert.type === 'critical');
+        const matchesSearch = alert.message.toLowerCase().includes(search);
+        return matchesFilter && matchesSearch;
+      });
+
+      filteredAlerts.forEach((alert, index) => {
+        const alertItem = document.createElement('div');
+        alertItem.className = `alert-item ${alert.type}`;
+        alertItem.innerHTML = `
+          <div class="alert-icon">
+            <i class="fas ${
+              alert.type === 'critical' ? 'fa-exclamation-triangle' :
+              alert.message.includes('humidity') ? 'fa-temperature-high' :
+              alert.message.includes('Light') ? 'fa-lightbulb' : 'fa-info-circle'
+            }"></i>
+          </div>
+          <div class="alert-details">
+            <h4>${alert.message}</h4>
+            <span class="alert-time">${alert.time}</span>
+          </div>
+          <div class="alert-status">
+            <span class="status ${alert.status}">${alert.status.charAt(0).toUpperCase() + alert.status.slice(1)}</span>
+            ${alert.status === 'active' ? `<button class="btn resolve-btn" onclick="resolveAlert(${index})">Resolve</button>` : ''}
+          </div>
+        `;
+        alertsList.appendChild(alertItem);
+      });
+    }
+
+    // Resolve an alert
+    function resolveAlert(index) {
+      alerts[index].status = 'resolved';
+      renderAlerts();
+      updateAlertCount();
+    }
+
+    // Update notification badge
+    function updateAlertCount() {
+      const activeAlerts = alerts.filter(alert => alert.status === 'active').length;
+      alertCount.textContent = activeAlerts;
+    }
+
+    // Filter alerts based on dropdown and search
+    function filterAlerts() {
+      renderAlerts();
+    }
+
+    // Handle WebSocket errors
+    ws.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    // Handle WebSocket closure
+    ws.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+  </script>
+</body>
+</html>

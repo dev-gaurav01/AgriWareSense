@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Smart Warehouse</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Additional login-specific styles */
+    .login-container {
+      max-width: 400px;
+      margin: 80px auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .login-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .login-container input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .login-container button {
+      width: 100%;
+      padding: 10px;
+      background: green;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .login-container button:hover {
+      background: darkgreen;
+    }
+    .login-msg {
+      color: red;
+      text-align: center;
+      margin-top: 10px;
+    }
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .navbar .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <!-- Optional Navbar (if you want the same style as your main site) -->
+  <nav class="navbar">
+    <div class="logo">Smart Warehouse</div>
+  </nav>
+
+  <div class="login-container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+
+      <button type="submit">Login</button>
+      <p id="loginMsg" class="login-msg"></p>
+    </form>
+  </div>
+
+  <!-- Script for handling login logic -->
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const msgEl = document.getElementById("loginMsg");
+
+      // Example login logic (replace with real authentication):
+      if (username === "admin" && password === "admin") {
+        // Redirect to main dashboard
+        window.location.href = "index.html";
+      } else {
+        msgEl.textContent = "Invalid username or password!";
+      }
+    });
+  </script>
+</body>
+</html>

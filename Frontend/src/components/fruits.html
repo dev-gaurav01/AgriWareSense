@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fruits Details - Smart Warehouse</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Modal Styles */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .modal-content input {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .modal-content button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .modal-content button.close-btn {
+      background-color: #d9534f;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Smart Warehouse</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#">Alerts</a></li>
+      <li><a href="#">Help/Support</a></li>
+    </ul>
+    <div class="icons">
+      <span>🔔</span>
+      <span id="logoutBtn" style="cursor:pointer;">👤 Logout</span>
+    </div>
+  </nav>
+
+  <!-- Category Hero Section -->
+  <header class="category-hero">
+    <div class="category-image">
+      <img src="https://www.shutterstock.com/image-vector/sweet-tropical-fruits-mixed-berries-260nw-1320521831.jpg" alt="Fruits">
+    </div>
+    <div class="category-info">
+      <h1>Fruits</h1>
+      <p>Explore detailed information on the fruits available in our warehouse.</p>
+    </div>
+  </header>
+
+  <!-- Details Section -->
+  <section class="details">
+    <h2>Available Fruits</h2>
+    <div class="details-grid" id="fruitsContainer">
+      <!-- Data from MOCK_DATA (4).json will be appended here -->
+    </div>
+    <button class="btn" onclick="window.location.href='index.html'">Back to Dashboard</button>
+  </section>
+
+  <!-- Modal for updating quantity -->
+  <div id="updateModal" class="modal">
+    <div class="modal-content">
+      <h3>Update Quantity</h3>
+      <input type="number" id="modalInput" min="0" step="0.01">
+      <br>
+      <button id="saveBtn">Save</button>
+      <button class="close-btn" id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    // Global variables to store current item info for update
+    let currentItemId = null;
+    let currentCategory = null;
+
+    // Function to open the update modal
+    function openUpdateModal(category, id, currentQuantity) {
+      currentItemId = id;
+      currentCategory = category;
+      document.getElementById('modalInput').value = currentQuantity;
+      document.getElementById('updateModal').style.display = 'block';
+    }
+
+    // Function to close the update modal
+    function closeUpdateModal() {
+      document.getElementById('updateModal').style.display = 'none';
+    }
+
+    // Save button event: update the displayed quantity (simulate backend update)
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      const newQuantity = document.getElementById('modalInput').value;
+      if (currentItemId !== null) {
+        // Update displayed quantity in the item element (span id="quantity-{id}")
+        document.getElementById('quantity-' + currentItemId).textContent = newQuantity;
+        alert("Quantity for " + currentCategory + " item " + currentItemId + " updated to " + newQuantity + " (simulated update)");
+      }
+      closeUpdateModal();
+    });
+
+    // Cancel button event: close the modal without updating
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      closeUpdateModal();
+    });
+
+    // Fetch fruits data from JSON file
+    fetch("MOCK_DATA (4).json")
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById("fruitsContainer");
+        if(data.length > 0) {
+          data.forEach(item => {
+            // Assume unique identifier is stored in item.fruits (e.g., 1,2,3,...)
+            const id = item.fruits;
+            const div = document.createElement("div");
+            div.classList.add("data-item");
+            div.innerHTML = `
+              <p><strong>Name:</strong> ${item.name}</p>
+              <p><strong>Quantity:</strong> <span id="quantity-${id}">${item.quantity}</span> kg </p>
+              <button class="btn" onclick="openUpdateModal('fruits', ${id}, ${item.quantity})">Update</button>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          container.innerHTML = "<p>No data available for Fruits.</p>";
+        }
+      })
+      .catch(error => console.error("Error loading fruits data:", error));
+  </script>
+</body>
+</html>

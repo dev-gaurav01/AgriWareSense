@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Learn More - Smart Warehouse</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* Variables */
+    :root {
+      --primary-color: #4caf50;
+      --primary-dark: #388e3c;
+      --primary-light: #c8e6c9;
+      --text-color: #333333;
+      --text-light: #666666;
+      --bg-color: #f5f5f5;
+      --card-bg: #ffffff;
+      --border-color: #e0e0e0;
+      --sidebar-width: 250px;
+      --header-height: 60px;
+    }
+
+    /* Basic Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--card-bg);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .logo-icon {
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-right: 10px;
+    }
+
+    .logo-container h2 {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+    }
+
+    .nav-menu {
+      list-style: none;
+      padding: 10px 0;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .nav-menu li {
+      margin-bottom: 5px;
+    }
+
+    .nav-menu li a {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-menu li.active a {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      border-left-color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .nav-menu li a:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+      border-left-color: var(--primary-color);
+    }
+
+    .nav-menu li a i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 15px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: var(--header-height);
+      background-color: var(--card-bg);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      justify-content: space-between;
+    }
+
+    .menu-toggle {
+      display: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-color);
+      border-radius: 20px;
+      padding: 5px 15px;
+      flex: 0 1 400px;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      padding: 5px;
+      outline: none;
+      width: 100%;
+    }
+
+    .search-box i {
+      color: var(--text-light);
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .notification {
+      margin-right: 20px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background-color: #f44336;
+      color: white;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .user-info span {
+      margin-right: 10px;
+    }
+
+    .user-info i {
+      margin-left: 5px;
+    }
+
+    /* Content Area */
+    .content {
+      padding: 20px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .page-header {
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-header h1 {
+      color: var(--primary-dark);
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .breadcrumb {
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    .breadcrumb a {
+      color: var(--primary-color);
+      text-decoration: none;
+    }
+
+    /* Card Styles */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .card-content {
+      padding: 25px;
+    }
+
+    .intro-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      color: var(--text-color);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      margin: 30px 0 20px;
+      color: var(--primary-dark);
+      font-weight: 500;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .section-title i {
+      margin-right: 10px;
+      color: var(--primary-color);
+    }
+
+    /* Features Section */
+    .features-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .feature-box {
+      background-color: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .feature-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-icon {
+      font-size: 24px;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .feature-box h3 {
+      margin-bottom: 10px;
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+
+    .feature-box p {
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      margin-bottom: 30px;
+    }
+
+    .how-it-works p {
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .process-diagram {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .process-step {
+      display: flex;
+      background-color: #fafafa;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .step-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      min-width: 60px;
+    }
+
+    .step-content {
+      padding: 15px;
+      flex-grow: 1;
+    }
+
+    .step-content h4 {
+      margin-bottom: 5px;
+      color: var(--primary-dark);
+    }
+
+    .step-content p {
+      margin: 0;
+      color: var(--text-light);
+    }
+
+    /* Benefits Section */
+    .benefits-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .benefit-box {
+      background-color: #fafafa;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .benefit-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .benefit-box i {
+      font-size: 2rem;
+      color: var(--primary-color);
+      margin-bottom: 15px;
+    }
+
+    .benefit-box h3 {
+      margin-bottom: 10px;
+      color: var(--primary-dark);
+      font-weight: 500;
+    }
+
+    .benefit-box p {
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    /* Conclusion */
+    .conclusion {
+      background-color: #f0f7f0;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .conclusion p {
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .primary-btn {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn i {
+      margin-right: 8px;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .features-container, .benefits-container {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .search-box {
+        display: none;
+      }
+      
+      .features-container, .benefits-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .process-step {
+        flex-direction: column;
+      }
+      
+      .step-number {
+        width: 100%;
+        padding: 10px;
+      }
+      
+      .page-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="logo-container">
+      <i class="fas fa-warehouse logo-icon"></i>
+      <h2>AgriWareSense</h2>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="dashboard.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+      <li><a href="alerts.html"><i class="fas fa-bell"></i> Alerts</a></li>
+      <li class="active"><a href="learn-more.html"><i class="fas fa-info-circle"></i> Learn More</a></li>
+      <li><a href="help.html"><i class="fas fa-question-circle"></i> Help/Support</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <span>© 2025 AgriWareSense</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Navigation Bar -->
+    <div class="top-bar">
+      <div class="menu-toggle">
+        <i class="fas fa-bars"></i>
+      </div>
+      <div class="search-box">
+        <input type="text" placeholder="Search...">
+        <i class="fas fa-search"></i>
+      </div>
+      <div class="top-right">
+        <div class="notification">
+          <i class="fas fa-bell"></i>
+          <span class="badge">3</span>
+        </div>
+        <div class="user-info">
+          <span>Admin User</span>
+          <i class="fas fa-user-circle"></i>
+          <i class="fas fa-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content">
+      <div class="page-header">
+        <h1>About Our Smart Warehouse Management System</h1>
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> / 
+          <span>Learn More</span>
+        </nav>
+      </div>
+
+      <div class="card">
+        <div class="card-content">
+          <p class="intro-text">
+            Our Smart Warehouse Management System (WMS) optimizes and automates the 
+            storage, monitoring, and distribution of agricultural goods. By combining 
+            sensor data, real-time dashboards, and intelligent controls, we provide a 
+            comprehensive solution that keeps products fresh and operations efficient.
+          </p>
+          
+          <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
+          <div class="features-container">
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-temperature-high"></i>
+              </div>
+              <h3>Real-Time Monitoring</h3>
+              <p>Track temperature, humidity, moisture, and gas levels continuously using IoT sensors.</p>
+            </div>
+            
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-cogs"></i>
+              </div>
+              <h3>Automated Controls</h3>
+              <p>Switch on fans or motors to regulate environmental conditions when thresholds are exceeded.</p>
+            </div>
+            
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-boxes"></i>
+              </div>
+              <h3>Inventory Management</h3>
+              <p>Use LDR sensors to detect stock levels, ensuring you never run out of critical items.</p>
+            </div>
+            
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-chart-bar"></i>
+              </div>
+              <h3>Data Analytics & ML</h3>
+              <p>Predict potential issues or optimize storage strategies based on historical data.</p>
+            </div>
+            
+            <div class="feature-box">
+              <div class="feature-icon">
+                <i class="fas fa-user-lock"></i>
+              </div>
+              <h3>User Authentication</h3>
+              <p>Secure login system ensures only authorized personnel can access data and controls.</p>
+            </div>
+          </div>
+          
+          <h2 class="section-title"><i class="fas fa-question-circle"></i> How It Works</h2>
+          <div class="how-it-works">
+            <p>
+              Sensors placed in the warehouse collect data about temperature, humidity, 
+              gas levels, and inventory status. This data is transmitted to a central server, 
+              where it is stored and analyzed. Users can log in to the dashboard to view 
+              current conditions, receive alerts, and perform actions like turning on cooling 
+              systems or updating inventory records.
+            </p>
+            <div class="process-diagram">
+              <div class="process-step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                  <h4>Data Collection</h4>
+                  <p>IoT sensors gather environmental and inventory data</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                  <h4>Data Processing</h4>
+                  <p>Server analyzes information in real-time</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                  <h4>User Interface</h4>
+                  <p>Dashboard provides monitoring and control capabilities</p>
+                </div>
+              </div>
+              <div class="process-step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                  <h4>Automated Response</h4>
+                  <p>System takes action based on predefined thresholds</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <h2 class="section-title"><i class="fas fa-thumbs-up"></i> Benefits</h2>
+          <div class="benefits-container">
+            <div class="benefit-box">
+              <i class="fas fa-bolt"></i>
+              <h3>Improved Efficiency</h3>
+              <p>Automated processes reduce manual labor and human error.</p>
+            </div>
+            
+            <div class="benefit-box">
+              <i class="fas fa-coins"></i>
+              <h3>Cost Savings</h3>
+              <p>Predictive maintenance prevents equipment failures and product spoilage.</p>
+            </div>
+            
+            <div class="benefit-box">
+              <i class="fas fa-expand-arrows-alt"></i>
+              <h3>Scalability</h3>
+              <p>Easily add more sensors, storage locations, or advanced analytics as your needs grow.</p>
+            </div>
+            
+            <div class="benefit-box">
+              <i class="fas fa-leaf"></i>
+              <h3>Sustainability</h3>
+              <p>Minimize waste and energy usage with precise environmental control.</p>
+            </div>
+          </div>
+          
+          <div class="conclusion">
+            <p>
+              By harnessing the power of IoT, machine learning, and real-time dashboards, 
+              our Smart Warehouse Management System ensures a greener tomorrow through 
+              data-driven storage and distribution.
+            </p>
+            <a href="index.html" class="btn primary-btn">
+              <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Basic functionality for sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      const menuToggle = document.querySelector('.menu-toggle');
+      const sidebar = document.querySelector('.sidebar');
+      
+      if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+          sidebar.classList.toggle('active');
+        });
+      }
+      
+      // Close sidebar when clicking outside on mobile
+      document.addEventListener('click', function(event) {
+        const isClickInsideSidebar = sidebar.contains(event.target);
+        const isClickOnToggle = menuToggle && menuToggle.contains(event.target);
+        
+        if (!isClickInsideSidebar && !isClickOnToggle && window.innerWidth < 992 && sidebar.classList.contains('active')) {
+          sidebar.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

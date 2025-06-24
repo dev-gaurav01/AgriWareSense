@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grains Details - Smart Warehouse</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Modal Styles for Update */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 300px;
+      border-radius: 10px;
+      text-align: center;
+    }
+    .modal-content input {
+      width: 80%;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .modal-content button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      background-color: #00796b;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .modal-content button.close-btn {
+      background-color: #d9534f;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Smart Warehouse</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="#">Alerts</a></li>
+      <li><a href="#">Help/Support</a></li>
+    </ul>
+    <div class="icons">
+      <span>🔔</span>
+      <span id="logoutBtn" style="cursor:pointer;">👤 Logout</span>
+    </div>
+  </nav>
+
+  <!-- Category Hero Section -->
+  <header class="category-hero">
+    <div class="category-image">
+      <img src="https://img.freepik.com/premium-photo/uncooked-indian-pulses-grains-seeds-white-bowls-wooden-surface-selective-focus_466689-25550.jpg?semt=ais_hybrid" alt="Grains">
+    </div>
+    <div class="category-info">
+      <h1>Grains</h1>
+      <p>Explore detailed information on the grains available in our warehouse.</p>
+    </div>
+  </header>
+
+  <!-- Details Section -->
+  <section class="details">
+    <h2>Available Grains</h2>
+    <div class="details-grid" id="grainsContainer">
+      <!-- Data from MOCK_DATA (2).json will be appended here -->
+    </div>
+    <button class="btn" onclick="window.location.href='index.html'">Back to Dashboard</button>
+  </section>
+
+  <!-- Modal for updating quantity -->
+  <div id="updateModal" class="modal">
+    <div class="modal-content">
+      <h3>Update Quantity</h3>
+      <input type="number" id="modalInput" min="0" step="0.01">
+      <br>
+      <button id="saveBtn">Save</button>
+      <button class="close-btn" id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <script>
+    let currentItemId = null;
+    let currentCategory = null;
+    function openUpdateModal(category, id, currentQuantity) {
+      currentItemId = id;
+      currentCategory = category;
+      document.getElementById('modalInput').value = currentQuantity;
+      document.getElementById('updateModal').style.display = 'block';
+    }
+    function closeUpdateModal() {
+      document.getElementById('updateModal').style.display = 'none';
+    }
+    document.getElementById('saveBtn').addEventListener('click', function() {
+      const newQuantity = document.getElementById('modalInput').value;
+      if (currentItemId !== null) {
+        document.getElementById('quantity-' + currentItemId).textContent = newQuantity;
+        alert("Quantity for " + currentCategory + " item " + currentItemId + " updated to " + newQuantity + " (simulated update)");
+      }
+      closeUpdateModal();
+    });
+    document.getElementById('cancelBtn').addEventListener('click', function() {
+      closeUpdateModal();
+    });
+    fetch("MOCK_DATA (2).json")
+      .then(response => response.json())
+      .then(data => {
+        const container = document.getElementById("grainsContainer");
+        if(data.length > 0) {
+          data.forEach(item => {
+            const id = item.grains; // unique identifier
+            const div = document.createElement("div");
+            div.classList.add("data-item");
+            div.innerHTML = `
+              <p><strong>Name:</strong> ${item.name}</p>
+              <p><strong>Quantity:</strong> <span id="quantity-${id}">${item.quantity}</span> kg </p>
+              <button class="btn" onclick="openUpdateModal('grains', ${id}, ${item.quantity})">Update</button>
+            `;
+            container.appendChild(div);
+          });
+        } else {
+          container.innerHTML = "<p>No data available for Grains.</p>";
+        }
+      })
+      .catch(error => console.error("Error loading grains data:", error));
+  </script>
+</body>
+</html>

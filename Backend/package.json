@@ -1,0 +1,20 @@
+{
+  "name": "warehouse_monitoring_v3",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.8.2",
+    "express": "^4.21.2",
+    "mongodb": "^6.14.2",
+    "ws": "^8.18.1"
+  }
+}

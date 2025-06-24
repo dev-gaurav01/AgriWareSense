@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Smart Warehouse</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="logo">Smart Warehouse</div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="testing websockets/public/dashboard.html">Dashboard</a></li>
+      <li><a href="help.html">Help/Support</a></li>
+      <li><a href="login.html">Login</a></li>
+    </ul>
+    <div class="icons"> 
+      <span>🔔</span>
+      <span id="logoutBtn" style="cursor:pointer;">👤 Logout</span>
+    </div>
+  </nav>
+
+  <!-- Dashboard Content -->
+  <div class="container">
+      <h1>Real-Time Sensor Data</h1>
+      <div id="sensor-data">
+          <!-- Sensor data will be dynamically inserted here -->
+      </div>
+      <div class="timestamp">
+          Last Updated: <span id="last-updated">Never</span>
+      </div>
+  </div>
+
+  <script>
+      // Replace the IP with your server's IP address if needed.
+      const ws = new WebSocket('ws://192.168.43.141:4000'); 
+
+      ws.onopen = () => {
+          console.log('WebSocket connection established');
+      };
+
+      ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('Received data:', data);
+
+          const sensorDataDiv = document.getElementById('sensor-data');
+          sensorDataDiv.innerHTML = `
+              <div class="sensor-block">
+                  <h2>Temperature</h2>
+                  <p>${data.temperature} °C</p>
+              </div>
+              <div class="sensor-block">
+                  <h2>Humidity</h2>
+                  <p>${data.humidity} %</p>
+              </div>
+              <div class="sensor-block">
+                  <h2>Obstacle</h2>
+                  <p>${data.obstacle ? 'Detected' : 'No Obstacle'}</p>
+              </div>
+          `;
+
+          const lastUpdatedSpan = document.getElementById('last-updated');
+          lastUpdatedSpan.textContent = new Date(data.timestamp).toLocaleTimeString();
+      };
+
+      ws.onclose = () => {
+          console.log('WebSocket connection closed');
+      };
+  </script>
+</body>
+</html>
